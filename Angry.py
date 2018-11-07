@@ -6,9 +6,11 @@ import Queue
 import pyric
 import pyric.pyw as pyw
 import pyric.lib.libnl as nl
+import pyric.utils.channels as ch
+import itertools
 
 # Global Variables
-play_nice = True
+play_nice = False
 attack_queue = Queue.Queue()
 ap_list = []
 attack_list = []
@@ -71,6 +73,7 @@ def TimeSink():
 
 # Make sure the Interfaces that are being utilized are in Monitor Mode
 def SetMonitorMode(iface,action):
+	iface = pyw.getcard(iface)
 	print pyw.modeget(iface)
 	if action == "monitor":
 		# check to make sure the card isn't already in monitor mode
@@ -93,8 +96,8 @@ def SetMonitorMode(iface,action):
 
 # Changes the Interface (typically of wlan1) to make sure it's listening for the EAPOL Packets. 
 def SetIfaceChannel(iface,channel):
-	print "Changing %s to channel %s" % (iface,channel)
-	print pyw.chset(iface,str(channel),None)
+	print "Changing %s to channel %s" % (iface,int(channel))
+	pyw.chset(iface,int(channel), None)
 
 
 # Check Interfaces - Make sure there is at least two Wireless Cards that support Monitor Mode
@@ -105,10 +108,40 @@ def CheckInterfaces():
 		print "That's my secret cap'n I'm always angry!"
 
 # HoppinIface - Hop the primary Interface to find more beacons.  Much like airodump-ng channel hop
-def HoppinIface(iface):
-	print "hopping Iface"
-	pinfo = pyw.phyinfo(iface)
+def HoppinIface():
+	channels = []
+	iface = 'wlan0'
+	# Get information for iface from Pyric
+	w0 = pyw.getcard(iface)
+	pinfo = pyw.phyinfo(w0)
+	# I need to figure out how to get into a list the full availability of channels
+	# for d in pinfo['bands']:
+	# 	HT,VHT = pinfo['bands'][d]['HT'],pinfo['bands'][d]['VHT']
+	# 	#print "Band: %s HT/VHT: %s/%s" % (d,HT,VHT)
+	# 	if HT:
+	# 		print pinfo['bands'][d]['rates']
+	# 	if VHT:
+	# 		print pinfo['bands'][d]['rates']
+	channels = ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","36","40","44","48","52","56","60","64","100","104","108","112","116","120","124","128","132","136"]
+	# loop for the entire channel set
+	for channel in itertools.cycle(channels):
+		SetIfaceChannel(w0,channel)
+		time.sleep(3) # Time to sleep per channel
 
+
+# Debugging Interfaces
+def DebuggingInterface(iface):
+	interfaces = pyw.interfaces()
+	print interfaces
+	print "Is %s an interface? %s" % (iface, pyw.isinterface(iface))
+	print "Is %s a wireless device? %s" % (iface,pyw.iswireless(iface))
+	w0 = pyw.getcard(iface)
+	print "Is %s active?  %s" % (iface, pyw.isup(w0))
+	print "Is %s blocked? %s" % (iface, pyw.isblocked(w0))
+	iinfo = pyw.ifinfo(w0)
+	print iinfo
+	pinfo = pyw.phyinfo(w0)
+	print pinfo['bands']
 
 # Deauth is the Python implementation of sending deauth packets with Scapy
 def Deauth(bssid):
@@ -120,12 +153,18 @@ def Deauth(bssid):
 
 # Start the application and the threads.
 if __name__ == "__main__":
+	# Make sure you have at least 2 Wireless Interfaces to Start
+	CheckInterfaces()
+
 	f = open('whitelist.txt')
 	whitelist = f.readlines()
+	SetMonitorMode('wlan0','monitor')
+
 
 	try:
 		print "Sniffing for Beacon Frames..."
 		thread.start_new(Sniffing, ())
+		thread.start_new(HoppinIface,())
 		thread.start_new(TimeSink, ())
 
 		while True:
