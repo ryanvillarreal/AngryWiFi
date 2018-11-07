@@ -1,0 +1,20 @@
+import utils
+import ConfigParser
+import subprocess
+
+from utils import *
+
+__version__ = 'AngryWifi 0.10'
+
+class Settings:
+	
+	def __init__(self):
+		self.AngryWifiPATH = './'
+
+	def populate(self, options):
+		# Config parsing
+		config = ConfigParser.ConfigParser()
+
+def init():
+	global Config
+	Config = Settings()
