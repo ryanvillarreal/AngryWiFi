@@ -18,6 +18,21 @@
 import optparse
 from utils import *
 
+banner()
+
+parser = optparse.OptionParser(usage='python %prog -I eth0 -w -r -f\nor:\npython %prog -I eth0 -wrf', version=settings.__version__, prog=sys.argv[0])
+parser.add_option('-v','--verbose',action="store_true", help="Increase verbosity.", dest="Verbose")
+options, args = parser.parse_args()
+
+if not os.geteuid() == 0:
+    print (color("[!] AngryWifi must be run as root."))
+    sys.exit(-1)
+elif IsOsX() is True:
+    print ("\n\033[1m\033[31mOSX is not supported by the PyRic package. \033[0m\n") # This option should be changed to True upon completion of development. 
+    exit(-1)
+
+StartupMessage()
+
 def main():
 	try:
 		# start the main

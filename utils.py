@@ -23,26 +23,56 @@ import pyric.lib.libnl as nl
 import pyric.utils.channels as ch
 import itertools
 import optparse
+import settings
+
+
+def color(txt, code = 1, modifier = 0):
+	if os.name == 'nt':  # No colors for windows...
+		return txt
+	return "\033[%d;3%dm%s\033[0m" % (modifier, code, txt)
 
 def CurrentDate():
 	Date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
 	return Date
 
 def banner():
+	print("""
+                            @@@@@@@@@@@@@@@@@@@@@@@                            
+                       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                       
+                   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                   
+                @@@@@@@@@@@@                     @@@@@@@@@@@@@                
+              @@@@@@@@@@#                            @@@@@@@@@@              
+             @@@@@@@@                @@@@@               @@@@@@@@@            
+               @@@@          @@@@@@@@@@@@@@@@@@@@@           @@@@              
+                         &@@@@@@@@@@@@@@@@@@@@@@@@@@@@                         
+                       @@@@@@@@@@@@@@@@  @@@@@@@@@@@@@@@@@                      
+                     @@@@@@@@@@                  @@@@@@@@@@                    
+                       @@@@                         @@@@@                      
+                                   @@@@@@@@@          @                        
+                               @@@@@@@@@@@@@@@@@                               
+                             @@@@@@@@@@@@@@@@@@@@@@                            
+                               @@@@@@      @@@@@@                              
+                                                                        
+                                     @@@@@                                    
+                                    @@@@@@@@                                   
+                                    @@@@@@@                                    
+                                     @@@@@ 
+                              That's my Secret Cap                                               
+                                I'm always Angry!
+                                     """)
 	print("To kill this script hit CRTL-C")
 	print("")
 
 def FindLocalIP(Iface, OURIP):
 	if Iface == 'ALL':
 		return '0.0.0.0'
-
 	try:
 		if IsOsX():
 			return OURIP
 		elif OURIP == None:
 			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 			s.setsockopt(socket.SOL_SOCKET, 25, Iface+'\0')
-			s.connect(("127.0.0.1",9))#RFC 863
+			s.connect(("127.0.0.1",9)) #RFC 863
 			ret = s.getsockname()[0]
 			s.close()
 			return ret
@@ -52,7 +82,11 @@ def FindLocalIP(Iface, OURIP):
 		sys.exit(-1)
 
 def StartupMessage():
-	print("")
+	enabled  = color('[ON]', 2, 1) 
+	disabled = color('[OFF]', 1, 1)
+
+	print ("Devices found: ")
+	print (CheckInterfaces())
 
 def OsInterfaceIsSupported():
 	if settings.Config.Interface != "Not set":
@@ -77,11 +111,16 @@ def DebuggingInterface(iface):
 	print((pinfo['bands']))
 
 # Check Interfaces - Make sure there is at least two Wireless Cards that support Monitor Mode
-def CheckInterfaces():
-	if len(pyw.winterfaces()) < 2:
-		return False
+def CheckInterfaces(check = 1):
+	if check == 1:
+		if len(pyw.winterfaces()) < 2:
+			return False
+		else:
+			return True
+	elif check == 0:
+		return pyw.interfaces()
 	else:
-		return True
+		print ("Error accessing interfaces.")
 
 # Make sure the Interfaces that are being utilized are in Monitor Mode
 def SetMonitorMode(iface,action):
