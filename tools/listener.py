@@ -24,7 +24,7 @@ def ProbingBeacons(pkt) :
 			try: 
 				channel = int(ord(pkt[Dot11Elt:3].info))
 			except: 
-				print "Error with the channel"
+				print("Error with the channel")
 			
 			if pkt.addr2 not in ap_list:
 				ap_list.append(pkt.addr2)
@@ -69,4 +69,4 @@ def TimeSink():
 		elif not attack_queue.empty():
 			GetAngry(attack_queue.get())
 		else:
-			print "Something went wrong"
+			print("Something went wrong")

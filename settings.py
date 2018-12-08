@@ -1,5 +1,5 @@
 import utils
-import ConfigParser
+import configparser
 import subprocess
 
 from utils import *
@@ -13,7 +13,7 @@ class Settings:
 
 	def populate(self, options):
 		# Config parsing
-		config = ConfigParser.ConfigParser()
+		config = configparser.ConfigParser()
 
 def init():
 	global Config

