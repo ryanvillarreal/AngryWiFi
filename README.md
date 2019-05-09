@@ -1,5 +1,7 @@
 # AngryWiFi
 -------------------------------------
+## This project is pretty much dead.  It's easier to just use https://github.com/bettercap/bettercap @evilsocket does updates far more frequently. 
+
 ### Automated Wireless Pentesting Tool
 
 AngryWiFi is a proof of concept for automated wireless penetration testing tool.  The hope is to be able to automate the process of scanning and collecting PreShared Keys from WPA/WPA2 wireless networks.  
